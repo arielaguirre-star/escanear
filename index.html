@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventario Pro V3 - Escaneo Pantalla Completa</title>
+    <title>Inventario Pro V4 - Escaneo por Foto y Cámara</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -25,7 +25,7 @@
         #video-wrapper {
             position: relative;
             width: 90%;
-            height: 80vh; /* 80% de la altura de la pantalla */
+            height: 70vh;
             overflow: hidden;
             border-radius: 1.5rem;
             border: 4px solid #6366f1;
@@ -72,15 +72,20 @@
             background: #e2e8f0;
             border-radius: 10px;
         }
+
+        /* Ocultar input de archivo pero mantenerlo funcional */
+        #file-input {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
-    <!-- OVERLAY DE ESCANEO (80% Pantalla) -->
+    <!-- OVERLAY DE ESCANEO EN VIVO -->
     <div id="scanner-overlay">
         <div class="w-full text-center p-4">
-            <p class="text-white text-lg font-bold">Alinea el código de barras</p>
-            <p class="text-slate-400 text-sm">Se cerrará automáticamente al detectar</p>
+            <p class="text-white text-lg font-bold">Escaneo en Vivo</p>
+            <p class="text-slate-400 text-sm">Alinea el código dentro del recuadro</p>
         </div>
         
         <div id="video-wrapper">
@@ -91,15 +96,15 @@
         </div>
 
         <button id="close-scanner" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full font-bold transition-all border border-white/20">
-            Cancelar
+            Cerrar Cámara
         </button>
     </div>
 
     <!-- INTERFAZ PRINCIPAL -->
     <div class="max-w-4xl mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold text-indigo-900 tracking-tight">Control de Activos IT</h1>
-            <p class="text-slate-500 mt-2 text-sm uppercase tracking-widest font-semibold">Módulo de Captura de Datos</p>
+            <h1 class="text-3xl font-extrabold text-indigo-900 tracking-tight text-balance">Gestión de Inventario Escolar</h1>
+            <p class="text-slate-500 mt-2 text-sm uppercase tracking-widest font-semibold italic">Profesor de Tecnología</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -108,24 +113,37 @@
                 <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 text-center">
                     <div class="mb-6 flex justify-center">
                         <div class="p-4 bg-indigo-50 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
                     </div>
-                    <h2 class="text-xl font-bold text-slate-800 mb-2">Nuevo Registro</h2>
-                    <p class="text-slate-500 text-sm mb-6">Inicia el escáner para agregar una computadora al inventario.</p>
                     
-                    <button id="open-scanner-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-indigo-200 active:scale-95 text-lg flex items-center justify-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Escanear Código
-                    </button>
+                    <h2 class="text-xl font-bold text-slate-800 mb-6">Método de Captura</h2>
+                    
+                    <div class="flex flex-col gap-4">
+                        <!-- OPCIÓN 1: FOTO (MÁS RECOMENDADO PARA ESE CÓDIGO) -->
+                        <label for="file-input" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-emerald-100 active:scale-95 text-lg flex items-center justify-center gap-3 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Tomar o Subir Foto
+                        </label>
+                        <input type="file" id="file-input" accept="image/*" capture="environment">
 
-                    <button id="reset-btn" class="mt-4 text-slate-400 hover:text-red-500 text-sm font-semibold transition-colors">
-                        Limpiar todos los registros
+                        <!-- OPCIÓN 2: CÁMARA EN VIVO -->
+                        <button id="open-scanner-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-indigo-100 active:scale-95 text-lg flex items-center justify-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Cámara en Vivo
+                        </button>
+                    </div>
+
+                    <button id="reset-btn" class="mt-8 text-slate-400 hover:text-red-500 text-sm font-semibold transition-colors">
+                        Reiniciar base de datos
                     </button>
                 </div>
 
@@ -134,13 +152,11 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-300" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                         </svg>
-                        Instrucciones
+                        Tip del Profesor
                     </h3>
-                    <ul class="text-xs text-indigo-200 space-y-2">
-                        <li>• Pulsa el botón azul para abrir la cámara.</li>
-                        <li>• El sistema cerrará la cámara al leer con éxito.</li>
-                        <li>• Mantén el pulso firme y a unos 15cm de distancia.</li>
-                    </ul>
+                    <p class="text-xs text-indigo-200 leading-relaxed">
+                        Si el código de barras es difícil de leer (como el de plástico negro), usa el botón <strong>"Tomar o Subir Foto"</strong>. Al sacar una foto fija, el celular puede enfocar mucho mejor que en el video en vivo.
+                    </p>
                 </div>
             </div>
 
@@ -148,10 +164,10 @@
             <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 flex flex-col min-h-[500px]">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-800 leading-tight">Registros</h2>
-                        <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Historial de sesión</p>
+                        <h2 class="text-2xl font-bold text-slate-800 leading-tight">Activos Capturados</h2>
+                        <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Base de datos local</p>
                     </div>
-                    <span id="counter" class="bg-indigo-600 text-white text-lg font-black px-4 py-1 rounded-2xl shadow-md shadow-indigo-100">0</span>
+                    <span id="counter" class="bg-indigo-600 text-white text-lg font-black px-4 py-1 rounded-2xl shadow-md">0</span>
                 </div>
 
                 <div id="data-list" class="flex-grow overflow-y-auto mb-6 pr-2 custom-scrollbar">
@@ -161,19 +177,23 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium">No hay equipos detectados</p>
+                        <p class="text-sm font-medium italic">Esperando datos...</p>
                     </div>
                 </div>
 
-                <button id="download-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-3 active:scale-95 text-lg">
+                <button id="download-btn" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 active:scale-95 text-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                    Descargar Excel
+                    Exportar Inventario (.csv)
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Elemento auxiliar para procesar fotos -->
+    <canvas id="hidden-canvas" style="display:none;"></canvas>
+
     <script>
+        // Configuración del lector
         const codeReader = new ZXing.BrowserMultiFormatReader();
         let scannedData = [];
         let isScanning = false;
@@ -181,11 +201,13 @@
         const openScannerBtn = document.getElementById('open-scanner-btn');
         const closeScannerBtn = document.getElementById('close-scanner');
         const scannerOverlay = document.getElementById('scanner-overlay');
+        const fileInput = document.getElementById('file-input');
         const resetBtn = document.getElementById('reset-btn');
         const downloadBtn = document.getElementById('download-btn');
         const dataList = document.getElementById('data-list');
         const counterElem = document.getElementById('counter');
 
+        // Función para actualizar la interfaz
         function updateUI() {
             if (scannedData.length === 0) {
                 dataList.innerHTML = `
@@ -195,13 +217,13 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium">No hay equipos detectados</p>
+                        <p class="text-sm font-medium italic">Esperando datos...</p>
                     </div>`;
             } else {
                 dataList.innerHTML = scannedData.map((item, index) => `
-                    <div class="flex justify-between items-center bg-white p-5 rounded-2xl mb-4 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-center bg-white p-5 rounded-2xl mb-4 border border-slate-100 shadow-sm hover:shadow-md transition-shadow animate-in slide-in-from-bottom duration-300">
                         <div>
-                            <p class="text-[10px] text-indigo-500 font-black uppercase mb-1 tracking-widest">CPU #${scannedData.length - index}</p>
+                            <p class="text-[10px] text-indigo-500 font-black uppercase mb-1 tracking-widest">Activo IT #${scannedData.length - index}</p>
                             <p class="text-slate-800 font-mono font-bold text-lg leading-none">${item.codigo}</p>
                         </div>
                         <div class="text-right">
@@ -213,6 +235,31 @@
             counterElem.innerText = scannedData.length;
         }
 
+        // LÓGICA 1: ESCANEO POR FOTO (SUBIR ARCHIVO O TOMAR FOTO NATIVA)
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const img = new Image();
+                img.onload = async () => {
+                    try {
+                        // Usamos la librería para decodificar desde un elemento Image
+                        const result = await codeReader.decodeFromImageElement(img);
+                        registrarCodigo(result.getText());
+                    } catch (err) {
+                        alert("No se encontró ningún código legible en la foto. Intenta que el código esté bien centrado, enfocado y con buena luz.");
+                        console.error(err);
+                    }
+                    fileInput.value = ""; // Reset del input
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // LÓGICA 2: ESCANEO EN VIVO (VÍDEO)
         async function startScanning() {
             try {
                 isScanning = true;
@@ -220,25 +267,13 @@
 
                 await codeReader.decodeFromVideoDevice(undefined, 'video', (result, err) => {
                     if (result) {
-                        const codigo = result.getText();
-                        const timestamp = new Date().toLocaleTimeString();
-                        
-                        // Solo agregamos si es un nuevo código o diferente al último
-                        if (scannedData.length === 0 || scannedData[0].codigo !== codigo) {
-                            scannedData.unshift({ codigo, fecha: timestamp });
-                            updateUI();
-                            
-                            // Feedback táctil y visual
-                            if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
-                            
-                            // AUTO-CIERRE: Cerramos el escáner al tener éxito
-                            stopScanning();
-                        }
+                        registrarCodigo(result.getText());
+                        stopScanning(); // Cierra al detectar
                     }
                 });
             } catch (err) {
                 console.error(err);
-                alert("No se pudo acceder a la cámara. Asegúrate de dar permisos.");
+                alert("Error de cámara. Usa el botón de 'Tomar Foto' que es más compatible.");
                 stopScanning();
             }
         }
@@ -249,28 +284,43 @@
             scannerOverlay.style.display = 'none';
         }
 
+        // FUNCIÓN CENTRAL PARA REGISTRAR DATOS
+        function registrarCodigo(codigo) {
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // Evitamos duplicados consecutivos
+            if (scannedData.length === 0 || scannedData[0].codigo !== codigo) {
+                scannedData.unshift({ codigo, fecha: timestamp });
+                updateUI();
+                if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
+            } else {
+                alert("Este equipo ya fue registrado recién.");
+            }
+        }
+
+        // Eventos de botones
         openScannerBtn.addEventListener('click', startScanning);
         closeScannerBtn.addEventListener('click', stopScanning);
 
         resetBtn.addEventListener('click', () => {
-            if(confirm('¿Eliminar todos los registros de la lista?')) {
+            if(confirm('¿Eliminar todos los registros?')) {
                 scannedData = [];
                 updateUI();
             }
         });
 
         downloadBtn.addEventListener('click', () => {
-            if (scannedData.length === 0) return alert("Primero debes escanear algunos equipos.");
+            if (scannedData.length === 0) return alert("Escanea algo primero.");
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "Nro_Registro,Codigo_Serie,Hora_Captura\n";
+            csvContent += "Nro,Serie,Hora\n";
             scannedData.forEach((row, index) => {
                 csvContent += `${scannedData.length - index},${row.codigo},${row.fecha}\n`;
             });
 
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", `inventario_it_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`);
+            link.setAttribute("download", `inventario_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
