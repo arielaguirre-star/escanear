@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escáner de Inventario - Profe de Tecno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escáner de Inventario Industrial V2 - Profe de Tecno</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,102 +11,103 @@
             position: relative;
             width: 100%;
             max-width: 500px;
+            aspect-ratio: 4 / 3; /* Asegurar relación de aspecto industrial */
             margin: auto;
             overflow: hidden;
             border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            border: 4px solid #6366f1; /* Borde indicador de foco */
         }
-        video { width: 100%; height: auto; }
+        video { width: 100%; height: 100%; object-fit: cover; }
         .scanner-laser {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 0, 0, 0.7);
-            box-shadow: 0 0 8px red;
-            animation: scan 2s infinite linear;
-        }
-        @keyframes scan {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
+            top: 50%; /* Línea de escaneo central fija */
+            left: 5%;
+            width: 90%;
+            height: 4px;
+            background: rgba(239, 68, 68, 0.9);
+            box-shadow: 0 0 12px #ef4444;
+            transform: translateY(-50%);
         }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans">
 
     <div class="max-w-4xl mx-auto p-4">
-        <!-- Encabezado Pedagógico -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-slate-800">Sistemas de Captura Automática</h1>
-            <p class="text-slate-600 mt-2 italic text-sm">"Transformando datos físicos en información digital"</p>
+        <header class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">Sistemas de Captura Industrial V2</h1>
+            <p class="text-slate-600 mt-1 italic text-xs">Optimizado para códigos industriales y de baja visibilidad</p>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Sección de Escaneo -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm">
-                <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="8" x="7" y="8" rx="1"/></svg>
-                    Escáner en Vivo
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="8" x="7" y="8" rx="1"/></svg>
+                    Escáner de Alta Precisión
                 </h2>
                 
-                <div id="video-container" class="bg-black mb-4">
+                <div id="video-container" class="bg-black mb-3">
                     <video id="video"></video>
                     <div class="scanner-laser"></div>
                 </div>
 
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-2">
                     <div class="flex gap-2">
-                        <button id="start-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition">
+                        <button id="start-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm">
                             Encender Cámara
                         </button>
-                        <button id="reset-btn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-4 rounded-xl transition">
-                            Reiniciar
+                        <button id="reset-btn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-xl transition text-sm">
+                            Limpiar
                         </button>
                     </div>
-                    <p id="status" class="text-center text-sm text-slate-500">Permisos de cámara requeridos</p>
+                    <p id="status" class="text-center text-xs text-slate-500 p-1 rounded bg-slate-100 border border-slate-200">Revisando permisos...</p>
                 </div>
             </div>
 
-            <!-- Sección de Datos -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col h-full">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">Inventario Actual</h2>
+            <div class="bg-white p-5 rounded-2xl shadow-sm flex flex-col h-full border border-slate-100">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold">Inventario Actual</h2>
                     <span id="counter" class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0 items</span>
                 </div>
 
-                <div id="data-list" class="flex-grow overflow-y-auto max-h-64 mb-4 border-b border-slate-100 p-2 text-sm">
+                <div id="data-list" class="flex-grow overflow-y-auto max-h-72 mb-3 border border-slate-100 p-2 text-sm rounded-lg">
                     <p class="text-slate-400 italic text-center py-10">No hay equipos escaneados aún.</p>
                 </div>
 
-                <button id="download-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <button id="download-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                     Exportar a Excel (.csv)
                 </button>
             </div>
         </div>
 
-        <!-- Reflexión Pedagógica -->
-        <footer class="mt-12 p-6 bg-slate-800 text-slate-300 rounded-2xl">
-            <h3 class="text-white font-semibold mb-2 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
-                Hablemos de Técnica y Ética
+        <footer class="mt-8 p-5 bg-slate-900 text-slate-400 rounded-2xl">
+            <h3 class="text-white font-semibold mb-1 flex items-center gap-2 text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+                El Reto de la Técnica: El Contraste
             </h3>
-            <p class="text-sm leading-relaxed">
-                Este sistema utiliza visión artificial para decodificar un lenguaje de barras (técnica). Al automatizar el inventario, reducimos el error humano y optimizamos recursos. 
+            <p class="text-xs leading-relaxed">
+                Este código de barras industrial está sobre una superficie texturizada. Al igual que nuestros ojos, la cámara necesita un **contraste** claro entre la barra negra y el fondo blanco. 
                 <br><br>
-                <strong>Pregunta para la clase:</strong> Si cada computadora tiene un código único, ¿cómo ayuda esto a la <em>sustentabilidad</em> cuando el equipo llega al final de su vida útil?
+                <strong>Pregunta para la clase:</strong> Si la etiqueta se gasta o el plástico negro brilla demasiado, el sistema falla. ¿Qué **otra tecnología** existe que no requiera visibilidad óptica para identificar un equipo de forma única (pista: se usa en tarjetas de transporte)?
             </p>
         </footer>
     </div>
 
     <script>
-        const codeReader = new ZXing.BrowserMultiFormatReader();
+        // Configuración de formatos industriales más comunes para este tipo de etiqueta
+        const formatsToTry = [
+            ZXing.BarcodeFormat.CODE_128,
+            ZXing.BarcodeFormat.CODE_39,
+            ZXing.BarcodeFormat.EAN_13,
+            ZXing.BarcodeFormat.EAN_8
+        ];
+
+        // Instanciamos el lector indicándole qué formatos buscar para mayor velocidad y precisión
+        const codeReader = new ZXing.BrowserMultiFormatReader(formatsToTry);
         let scannedData = [];
         let isScanning = false;
 
-        const videoElem = document.getElementById('video');
         const startBtn = document.getElementById('start-btn');
         const resetBtn = document.getElementById('reset-btn');
         const downloadBtn = document.getElementById('download-btn');
@@ -119,9 +120,9 @@
                 dataList.innerHTML = '<p class="text-slate-400 italic text-center py-10">No hay equipos escaneados aún.</p>';
             } else {
                 dataList.innerHTML = scannedData.map((item, index) => `
-                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg mb-2 animate-fade-in border border-slate-200">
-                        <span class="font-mono text-indigo-600 font-bold">#${scannedData.length - index}</span>
-                        <span class="text-slate-700">${item.codigo}</span>
+                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg mb-1.5 animate-fade-in border border-slate-200 text-[13px]">
+                        <span class="font-mono text-indigo-700 font-extrabold">#${scannedData.length - index}</span>
+                        <span class="text-slate-800 font-medium">${item.codigo}</span>
                         <span class="text-[10px] text-slate-400">${item.fecha}</span>
                     </div>
                 `).join('');
@@ -132,46 +133,57 @@
         async function startScanning() {
             try {
                 isScanning = true;
-                statusText.innerText = "Buscando código...";
-                statusText.className = "text-center text-sm text-indigo-600 font-medium";
+                statusText.innerText = "Buscando código industrial... Enfoca el centro.";
+                statusText.className = "text-center text-xs text-indigo-700 font-semibold p-1 rounded bg-indigo-50 border border-indigo-100";
                 
-                await codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+                // Forzamos opciones de captura para priorizar la nítidez industrial
+                // Aumentamos zoom y precisión aunque baje la tasa de refresco (frames)
+                const constraints = {
+                    video: {
+                        facingMode: "environment",
+                        aspectRatio: 4/3,
+                        focusMode: "continuous",
+                        zoom: 1.5 // Intento de zoom óptico inicial para nítidez
+                    }
+                };
+
+                await codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
                     if (result) {
                         const codigo = result.getText();
                         const timestamp = new Date().toLocaleString();
                         
-                        // Evitar duplicados inmediatos
+                        // Lógica de agregado (evitar duplicados inmediatos)
                         if (scannedData.length === 0 || scannedData[0].codigo !== codigo) {
                             scannedData.unshift({ codigo, fecha: timestamp });
                             updateUI();
                             
                             // Feedback visual y sonoro (opcional)
                             document.body.classList.add('bg-green-100');
-                            setTimeout(() => document.body.classList.remove('bg-green-100'), 200);
+                            setTimeout(() => document.body.classList.remove('bg-green-100'), 150);
                         }
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.error(err);
+                        console.error("Error técnico del lector:", err);
                     }
                 });
             } catch (err) {
                 console.error(err);
-                statusText.innerText = "Error: Verifica los permisos de cámara.";
-                statusText.className = "text-center text-sm text-red-600";
+                statusText.innerText = "Error: Verifica permisos de cámara y que estés en un navegador moderno (Chrome, Firefox, Safari).";
+                statusText.className = "text-center text-xs text-red-600 p-1 rounded bg-red-50 border border-red-100";
             }
         }
 
         startBtn.addEventListener('click', () => {
             if (!isScanning) {
                 startScanning();
-                startBtn.innerText = "Escáner Activo";
+                startBtn.innerText = "Escáner Activo ✔";
                 startBtn.classList.remove('bg-indigo-600');
                 startBtn.classList.add('bg-slate-800');
             }
         });
 
         resetBtn.addEventListener('click', () => {
-            if(confirm('¿Deseas limpiar la lista actual?')) {
+            if(confirm('¿Deseas vaciar la lista actual?')) {
                 scannedData = [];
                 updateUI();
             }
@@ -179,19 +191,20 @@
 
         downloadBtn.addEventListener('click', () => {
             if (scannedData.length === 0) {
-                alert("Primero escanea algunos códigos.");
+                alert("Primero escanea algunos códigos industriales.");
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,Codigo,Fecha de Escaneo\n";
-            scannedData.forEach(row => {
-                csvContent += `${row.codigo},${row.fecha}\n`;
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM para acentos en Excel
+            csvContent += "Ítem,Código Escaneado,Fecha y Hora de Escaneo\n";
+            scannedData.forEach((row, index) => {
+                csvContent += `${scannedData.length - index},${row.codigo},${row.fecha}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `inventario_computadoras_${new Date().toLocaleDateString()}.csv`);
+            link.setAttribute("download", `inventario_industrial_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
