@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner de Inventario - Profe de Tecno</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        video { width: 100%; height: auto; }
+        .scanner-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 8px red;
+            animation: scan 2s infinite linear;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+
+    <div class="max-w-4xl mx-auto p-4">
+        <!-- Encabezado Pedagógico -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800">Sistemas de Captura Automática</h1>
+            <p class="text-slate-600 mt-2 italic text-sm">"Transformando datos físicos en información digital"</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Sección de Escaneo -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="8" x="7" y="8" rx="1"/></svg>
+                    Escáner en Vivo
+                </h2>
+                
+                <div id="video-container" class="bg-black mb-4">
+                    <video id="video"></video>
+                    <div class="scanner-laser"></div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <div class="flex gap-2">
+                        <button id="start-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition">
+                            Encender Cámara
+                        </button>
+                        <button id="reset-btn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-4 rounded-xl transition">
+                            Reiniciar
+                        </button>
+                    </div>
+                    <p id="status" class="text-center text-sm text-slate-500">Permisos de cámara requeridos</p>
+                </div>
+            </div>
+
+            <!-- Sección de Datos -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col h-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Inventario Actual</h2>
+                    <span id="counter" class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0 items</span>
+                </div>
+
+                <div id="data-list" class="flex-grow overflow-y-auto max-h-64 mb-4 border-b border-slate-100 p-2 text-sm">
+                    <p class="text-slate-400 italic text-center py-10">No hay equipos escaneados aún.</p>
+                </div>
+
+                <button id="download-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    Exportar a Excel (.csv)
+                </button>
+            </div>
+        </div>
+
+        <!-- Reflexión Pedagógica -->
+        <footer class="mt-12 p-6 bg-slate-800 text-slate-300 rounded-2xl">
+            <h3 class="text-white font-semibold mb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+                Hablemos de Técnica y Ética
+            </h3>
+            <p class="text-sm leading-relaxed">
+                Este sistema utiliza visión artificial para decodificar un lenguaje de barras (técnica). Al automatizar el inventario, reducimos el error humano y optimizamos recursos. 
+                <br><br>
+                <strong>Pregunta para la clase:</strong> Si cada computadora tiene un código único, ¿cómo ayuda esto a la <em>sustentabilidad</em> cuando el equipo llega al final de su vida útil?
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        let scannedData = [];
+        let isScanning = false;
+
+        const videoElem = document.getElementById('video');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const dataList = document.getElementById('data-list');
+        const statusText = document.getElementById('status');
+        const counterElem = document.getElementById('counter');
+
+        function updateUI() {
+            if (scannedData.length === 0) {
+                dataList.innerHTML = '<p class="text-slate-400 italic text-center py-10">No hay equipos escaneados aún.</p>';
+            } else {
+                dataList.innerHTML = scannedData.map((item, index) => `
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg mb-2 animate-fade-in border border-slate-200">
+                        <span class="font-mono text-indigo-600 font-bold">#${scannedData.length - index}</span>
+                        <span class="text-slate-700">${item.codigo}</span>
+                        <span class="text-[10px] text-slate-400">${item.fecha}</span>
+                    </div>
+                `).join('');
+            }
+            counterElem.innerText = `${scannedData.length} items`;
+        }
+
+        async function startScanning() {
+            try {
+                isScanning = true;
+                statusText.innerText = "Buscando código...";
+                statusText.className = "text-center text-sm text-indigo-600 font-medium";
+                
+                await codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+                    if (result) {
+                        const codigo = result.getText();
+                        const timestamp = new Date().toLocaleString();
+                        
+                        // Evitar duplicados inmediatos
+                        if (scannedData.length === 0 || scannedData[0].codigo !== codigo) {
+                            scannedData.unshift({ codigo, fecha: timestamp });
+                            updateUI();
+                            
+                            // Feedback visual y sonoro (opcional)
+                            document.body.classList.add('bg-green-100');
+                            setTimeout(() => document.body.classList.remove('bg-green-100'), 200);
+                        }
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+                statusText.innerText = "Error: Verifica los permisos de cámara.";
+                statusText.className = "text-center text-sm text-red-600";
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (!isScanning) {
+                startScanning();
+                startBtn.innerText = "Escáner Activo";
+                startBtn.classList.remove('bg-indigo-600');
+                startBtn.classList.add('bg-slate-800');
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if(confirm('¿Deseas limpiar la lista actual?')) {
+                scannedData = [];
+                updateUI();
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (scannedData.length === 0) {
+                alert("Primero escanea algunos códigos.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Codigo,Fecha de Escaneo\n";
+            scannedData.forEach(row => {
+                csvContent += `${row.codigo},${row.fecha}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `inventario_computadoras_${new Date().toLocaleDateString()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
