@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventario IT V6 - Motor de Alta Sensibilidad</title>
-    <!-- Usamos Quagga2, más potente para códigos 1D industriales -->
+    <title>Inventario IT V7 - Escaneo Continuo</title>
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         #interactive.viewport {
             position: relative;
             width: 100%;
-            height: 300px;
+            height: 350px;
             overflow: hidden;
             background: #000;
             border-radius: 1.5rem;
@@ -30,12 +29,20 @@
         .scanner-guide {
             position: absolute;
             top: 50%;
-            left: 10%;
-            right: 10%;
+            left: 5%;
+            right: 5%;
             height: 2px;
-            background: red;
-            box-shadow: 0 0 8px red;
+            background: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 10px red;
             z-index: 10;
+        }
+        /* Animación de éxito */
+        @keyframes flash {
+            0% { background-color: rgba(52, 211, 153, 0.5); }
+            100% { background-color: transparent; }
+        }
+        .flash-success {
+            animation: flash 0.5s ease-out;
         }
     </style>
 </head>
@@ -43,22 +50,22 @@
 
     <div class="max-w-md mx-auto p-4">
         <header class="text-center py-6">
-            <h1 class="text-2xl font-black text-indigo-900">Scanner Industrial V6</h1>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Optimizado para etiquetas negras</p>
+            <h1 class="text-2xl font-black text-indigo-900 tracking-tight">Scanner Pro V7</h1>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Modo Continuo Automatizado</p>
         </header>
 
         <!-- Área de Escaneo -->
-        <div class="bg-white p-4 rounded-3xl shadow-xl border border-slate-200 mb-6">
+        <div class="bg-white p-4 rounded-3xl shadow-xl border border-slate-200 mb-6 relative overflow-hidden" id="scanner-container">
             <div id="interactive" class="viewport mb-4">
                 <div class="scanner-guide"></div>
             </div>
             
             <div class="flex flex-col gap-3">
-                <button id="btn-scan" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all text-lg">
-                    ENCENDER ESCÁNER
+                <button id="btn-scan" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all text-lg uppercase tracking-wider">
+                    Iniciar Cámara
                 </button>
-                <div id="status-msg" class="text-center text-[10px] text-slate-400 font-bold uppercase">
-                    Estado: Cámara apagada
+                <div id="status-msg" class="text-center text-[10px] text-slate-400 font-bold uppercase py-1 px-3 bg-slate-50 rounded-full inline-block mx-auto">
+                    Cámara: Desconectada
                 </div>
             </div>
         </div>
@@ -66,40 +73,47 @@
         <!-- Resultados -->
         <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-slate-800 tracking-tight text-balance">Equipos Escaneados</h2>
-                <span id="counter" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-black">0</span>
+                <h2 class="text-lg font-bold text-slate-800">Equipos Registrados</h2>
+                <div class="flex items-center gap-2">
+                    <span id="counter" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-black">0</span>
+                </div>
             </div>
 
-            <div id="data-list" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+            <div id="data-list" class="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
                 <p class="text-center py-10 text-slate-300 italic text-sm">Esperando el primer código...</p>
             </div>
 
             <button id="btn-download" class="w-full mt-6 bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
-                Descargar Excel (.csv)
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Descargar Excel
             </button>
             
-            <button id="btn-reset" class="w-full mt-2 text-slate-300 text-[10px] font-bold uppercase hover:text-red-400">
-                Borrar historial
+            <button id="btn-reset" class="w-full mt-4 text-slate-300 text-[10px] font-bold uppercase hover:text-red-400 transition-colors">
+                Limpiar historial
             </button>
         </div>
 
-        <footer class="mt-8 text-center px-4">
-            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
-                <p class="text-[11px] text-indigo-800 leading-tight">
-                    <strong>Consejo del Profe:</strong> He cambiado el motor de lectura a <em>Quagga2</em>. Es mucho más sensible a los códigos industriales. Mantén el código horizontal y alineado con la línea roja.
-                </p>
-            </div>
+        <footer class="mt-8 text-center bg-indigo-900 p-6 rounded-[2rem] text-white shadow-2xl">
+            <h3 class="font-black text-indigo-300 text-xs uppercase mb-2 tracking-widest">Aviso del Profesor</h3>
+            <p class="text-[11px] leading-relaxed text-indigo-100">
+                Esta versión incluye <strong>Modo Continuo</strong>. Al detectar un código, el marco se iluminará en verde y podrás pasar al siguiente equipo inmediatamente sin tocar la pantalla.
+            </p>
         </footer>
     </div>
 
     <script>
         let scannedData = [];
         let isRunning = false;
+        let lastScannedCode = "";
+        let lastScannedTime = 0;
 
         const btnScan = document.getElementById('btn-scan');
         const statusMsg = document.getElementById('status-msg');
         const dataList = document.getElementById('data-list');
         const counterElem = document.getElementById('counter');
+        const scannerContainer = document.getElementById('scanner-container');
 
         function initQuagga() {
             Quagga.init({
@@ -109,55 +123,69 @@
                     target: document.querySelector('#interactive'),
                     constraints: {
                         facingMode: "environment",
+                        // Intentamos una resolución mayor para mejorar nitidez
+                        width: { min: 640, ideal: 1280 },
+                        height: { min: 480, ideal: 720 },
                         aspectRatio: { min: 1, max: 2 }
                     },
                 },
                 decoder: {
-                    // Agregamos los formatos industriales más comunes (Code 128 y Code 39)
                     readers: [
                         "code_128_reader", 
                         "code_39_reader", 
-                        "ean_reader", 
-                        "code_39_vin_reader"
-                    ],
-                    multiple: false
+                        "ean_reader"
+                    ]
                 },
-                locate: true, // Localizador de código para mejorar precisión
+                locate: true,
                 halfSample: true,
-                patchSize: "medium", // Tamaño de parche para códigos finos
+                patchSize: "medium",
             }, function(err) {
                 if (err) {
-                    console.error(err);
                     statusMsg.innerText = "Error: " + err;
                     return;
                 }
                 Quagga.start();
                 isRunning = true;
-                btnScan.innerText = "ESCÁNER ACTIVO";
+                btnScan.innerText = "ESCÁNER LISTO";
                 btnScan.classList.replace('bg-indigo-600', 'bg-slate-800');
-                statusMsg.innerText = "Estado: Escaneando en tiempo real...";
+                statusMsg.innerText = "Cámara: Activa y buscando...";
             });
 
-            // Al detectar un código
+            // Lógica de detección optimizada
             Quagga.onDetected(function(result) {
-                if (result.codeResult && result.codeResult.code) {
-                    const code = result.codeResult.code;
+                const code = result.codeResult.code;
+                const now = Date.now();
+
+                // REGLA DE NEGOCIO:
+                // Solo registramos si es un código distinto al último O si pasaron más de 3 segundos
+                if (code !== lastScannedCode || (now - lastScannedTime > 3000)) {
+                    lastScannedCode = code;
+                    lastScannedTime = now;
                     
-                    // Solo registrar si es un código nuevo
-                    if (scannedData.length === 0 || scannedData[0].codigo !== code) {
-                        const time = new Date().toLocaleTimeString();
-                        scannedData.unshift({ codigo: code, fecha: time });
-                        renderList();
-                        
-                        // Sonido o vibración si es posible
-                        if (navigator.vibrate) navigator.vibrate(100);
-                        
-                        // Pausar brevemente para evitar capturas múltiples
-                        Quagga.stop();
-                        setTimeout(() => { Quagga.start(); }, 1500);
-                    }
+                    registrarDato(code);
                 }
             });
+        }
+
+        function registrarDato(codigo) {
+            const time = new Date().toLocaleTimeString();
+            scannedData.unshift({ codigo: codigo, fecha: time });
+            renderList();
+            
+            // Efectos de Éxito
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            
+            // Feedback visual: destello verde en el contenedor
+            scannerContainer.classList.add('flash-success');
+            setTimeout(() => {
+                scannerContainer.classList.remove('flash-success');
+            }, 500);
+
+            // Importante: No detenemos Quagga, el motor sigue corriendo
+            statusMsg.innerText = "¡DETECTADO! LISTO PARA EL SIGUIENTE";
+            setTimeout(() => {
+                if(isRunning) statusMsg.innerText = "Buscando códigos...";
+            }, 2000);
         }
 
         function renderList() {
@@ -165,10 +193,10 @@
                 dataList.innerHTML = `<p class="text-center py-10 text-slate-300 italic text-sm">Esperando el primer código...</p>`;
             } else {
                 dataList.innerHTML = scannedData.map((item, idx) => `
-                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl flex justify-between items-center animate-in slide-in-from-right">
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl flex justify-between items-center animate-in slide-in-from-right duration-500">
                         <div>
-                            <div class="text-[9px] text-indigo-400 font-black uppercase">Equipo #${scannedData.length - idx}</div>
-                            <div class="text-indigo-900 font-mono font-black text-lg">${item.codigo}</div>
+                            <div class="text-[9px] text-indigo-400 font-black uppercase tracking-tighter">Activo #${scannedData.length - idx}</div>
+                            <div class="text-indigo-900 font-mono font-black text-lg leading-tight">${item.codigo}</div>
                         </div>
                         <div class="text-right text-[10px] text-slate-400 font-bold">${item.fecha}</div>
                     </div>
@@ -184,16 +212,20 @@
         });
 
         document.getElementById('btn-reset').addEventListener('click', () => {
-            if(confirm('¿Borrar historial?')) { scannedData = []; renderList(); }
+            if(confirm('¿Borrar historial?')) { 
+                scannedData = []; 
+                lastScannedCode = "";
+                renderList(); 
+            }
         });
 
         document.getElementById('btn-download').addEventListener('click', () => {
-            if (scannedData.length === 0) return alert("Nada que descargar.");
-            let csv = "data:text/csv;charset=utf-8,\uFEFFNro,Serie,Hora\n";
+            if (scannedData.length === 0) return alert("No hay datos para exportar.");
+            let csv = "data:text/csv;charset=utf-8,\uFEFFNro,Serie_Equipo,Hora_Registro\n";
             scannedData.forEach((r, i) => csv += `${scannedData.length - i},${r.codigo},${r.fecha}\n`);
             const link = document.createElement("a");
             link.href = encodeURI(csv);
-            link.download = `inventario_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+            link.download = `inventario_it_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
             link.click();
         });
     </script>
